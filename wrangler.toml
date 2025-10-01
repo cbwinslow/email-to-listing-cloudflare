@@ -1,0 +1,48 @@
+name = "email-to-listing"
+main = "src/worker.ts"
+compatibility_date = "2025-09-01"
+
+[vars]
+FROM_ADDRESS = "listings@cloudcurio.cc"
+REPLY_DISPLAY_NAME = "CloudCurio Listings Bot"
+DEFAULT_CURRENCY = "USD"
+DEFAULT_LOCALE = "en_US"
+PUBLIC_BASE_URL = "https://cloudcurio.cc"
+ALLOW_EBAY_POST = "false"
+ALLOW_STRIPE = "false"
+
+# Optional: set via `wrangler secret put` (recommended) instead of plain vars.
+# EBAY_OAUTH_TOKEN
+# EBAY_ENV = "PRODUCTION" # or "SANDBOX"
+# EBAY_MARKETPLACE_ID = "EBAY_US"
+# EBAY_SHIP_FROM_POSTAL = "90001"
+# EBAY_SHIP_FROM_COUNTRY = "US"
+# EBAY_LISTING_FORMAT = "FIXED_PRICE"
+# STRIPE_SECRET
+
+[ai]
+binding = "AI"
+
+[[r2_buckets]]
+binding = "ITEMS_BUCKET"
+bucket_name = "email-listings"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "email_to_listing"
+database_id = "REPLACE_WITH_D1_ID"
+
+[[kv_namespaces]]
+binding = "SETTINGS_KV"
+id = "REPLACE_WITH_KV_ID"
+
+[[queues.producers]]
+binding = "ANALYSIS_QUEUE"
+queue = "email-to-listing-analysis"
+
+[[queues.consumers]]
+queue = "email-to-listing-analysis"
+max_batch_size = 10
+max_retries = 5
+dead_letter_queue = "email-to-listing-dlq"
+consumer_script = "email-to-listing-consumer"
