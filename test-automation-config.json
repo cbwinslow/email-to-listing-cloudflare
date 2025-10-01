@@ -1,0 +1,155 @@
+{
+  "automatedTestProviders": {
+    "githubCopilot": {
+      "description": "AI-powered test generation in VS Code",
+      "setup": {
+        "install": "Install GitHub Copilot extension in VS Code",
+        "usage": "Use '// generate unit tests' comments to trigger test generation"
+      },
+      "integration": {
+        "scripts": {
+          "generate-tests-copilot": "echo 'Use GitHub Copilot in VS Code to generate tests'"
+        }
+      }
+    },
+    "testim": {
+      "description": "AI-driven test automation platform",
+      "setup": {
+        "install": "npm install -g @testim/testim-cli",
+        "configure": "testim login && testim init"
+      },
+      "integration": {
+        "scripts": {
+          "test:testim": "testim --project item-analyzer --grid",
+          "test:testim-record": "testim record --url http://localhost:3000"
+        }
+      }
+    },
+    "applitools": {
+      "description": "AI-powered visual testing and monitoring",
+      "setup": {
+        "install": "npm install @applitools/eyes-playwright",
+        "configure": "Set APPLITOOLS_API_KEY environment variable"
+      },
+      "integration": {
+        "scripts": {
+          "test:visual": "playwright test --grep visual",
+          "test:visual-baseline": "applitools baseline"
+        }
+      }
+    },
+    "mabl": {
+      "description": "AI-powered test creation and execution",
+      "setup": {
+        "install": "npm install -g mabl-cli",
+        "configure": "mabl auth login"
+      },
+      "integration": {
+        "scripts": {
+          "test:mabl": "mabl tests run --environment production",
+          "test:mabl-generate": "mabl tests generate --url http://localhost:3000"
+        }
+      }
+    },
+    "functionize": {
+      "description": "AI-driven test automation with natural language",
+      "setup": {
+        "install": "npm install -g functionize-cli",
+        "configure": "functionize configure"
+      },
+      "integration": {
+        "scripts": {
+          "test:functionize": "functionize test run --suite 'Item Analyzer'",
+          "test:functionize-create": "functionize test create --description 'Test item analysis workflow'"
+        }
+      }
+    },
+    "jestAxe": {
+      "description": "Automated accessibility testing",
+      "setup": {
+        "install": "npm install --save-dev jest-axe @testing-library/jest-dom",
+        "configure": "Add to test setup file"
+      },
+      "integration": {
+        "testExample": `
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { render } from '@testing-library/react';
+
+expect.extend(toHaveNoViolations);
+
+test('should have no accessibility violations', async () => {
+  const { container } = render(<App />);
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+});
+`
+      }
+    },
+    "cypressAi": {
+      "description": "AI-enhanced Cypress testing",
+      "setup": {
+        "install": "npm install --save-dev cypress @cypress-ai/plugin",
+        "configure": "Add to cypress.config.js"
+      },
+      "integration": {
+        "config": `
+import { defineConfig } from 'cypress';
+import aiPlugin from '@cypress-ai/plugin';
+
+export default defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      aiPlugin(on, config);
+    },
+  },
+});
+`,
+        "testExample": `
+// Use natural language to describe tests
+cy.ai('Navigate to item analyzer and submit a test item');
+cy.ai('Verify that analysis results are displayed');
+`
+      }
+    }
+  },
+  "recommendedProviders": [
+    {
+      "name": "GitHub Copilot",
+      "reason": "Free, integrated with VS Code, excellent for unit test generation",
+      "priority": "high"
+    },
+    {
+      "name": "Applitools",
+      "reason": "Best for visual regression testing and cross-browser validation",
+      "priority": "high"
+    },
+    {
+      "name": "Testim",
+      "reason": "AI-powered test creation with self-healing capabilities",
+      "priority": "medium"
+    },
+    {
+      "name": "Jest Axe",
+      "reason": "Essential for accessibility testing automation",
+      "priority": "high"
+    }
+  ],
+  "integrationGuide": {
+    "setupSteps": [
+      "Choose providers based on your testing needs",
+      "Install required packages and extensions",
+      "Configure API keys and authentication",
+      "Update package.json scripts",
+      "Set up CI/CD integration",
+      "Create baseline tests and visual references"
+    ],
+    "bestPractices": [
+      "Start with unit tests using AI generation",
+      "Add visual testing for UI components",
+      "Implement accessibility testing early",
+      "Use AI providers for complex integration tests",
+      "Regularly update test baselines",
+      "Monitor test execution in CI/CD"
+    ]
+  }
+}

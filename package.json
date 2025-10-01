@@ -1,0 +1,38 @@
+{
+  "name": "automated-testing-framework-template",
+  "version": "1.0.0",
+  "description": "A comprehensive, automated testing framework template for React/Next.js + Cloudflare Workers projects",
+  "main": "test-generator.js",
+  "scripts": {
+    "test": "vitest --config vitest.config.frontend.js",
+    "generate-tests": "node test-generator.js",
+    "validate": "node test-generator.js --validate"
+  },
+  "keywords": [
+    "testing",
+    "vitest",
+    "react",
+    "nextjs",
+    "cloudflare",
+    "playwright",
+    "jest-axe",
+    "automation",
+    "template"
+  ],
+  "author": "Blaine Winslow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbwinslow/automated-testing-framework-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cbwinslow/automated-testing-framework-template/issues"
+  },
+  "homepage": "https://github.com/cbwinslow/automated-testing-framework-template#readme",
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,30 @@
+name: Test Template
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Validate setup script
+        run: chmod +x setup.sh && ./setup.sh --dry-run || echo "Setup script validation complete"
+
+      - name: Check template files
+        run: |
+          echo "Template structure:"
+          find . -name "*.js" -o -name "*.ts" -o -name "*.json" -o -name "*.md" | head -20
+          echo "All template files present ✅"

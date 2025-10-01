@@ -1,0 +1,132 @@
+
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [ main, develop, testing-suite ]
+  pull_request:
+    branches: [ main, develop, testing-suite ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate tests
+        run: npm run generate-tests
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run E2E tests
+        run: npx playwright install && npm run test:e2e
+
+      - name: Run accessibility tests
+        run: npm run test:frontend -- --reporter=verbose
+
+      - name: AI Code Analysis (Node 18 only)
+        if: matrix.node-version == '18'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          LOCALAI_BASE_URL: ${{ secrets.LOCALAI_BASE_URL }}
+        run: |
+          pip install requests
+          python .github/scripts/ai-code-review.py
+          python .github/scripts/ai-documentation-review.py
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: matrix.node-version == '18'
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+      - name: Upload AI Analysis Results
+        if: matrix.node-version == '18'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-analysis-results-${{ matrix.node-version }}
+          path: |
+            ai-review-report.md
+            ai-documentation-review.md
+          retention-days: 30
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level moderate
+
+      - name: Run code quality checks
+        run: |
+          npx eslint frontend/src --ext .ts,.tsx,.js,.jsx || true
+          npx tsc --noEmit --skipLibCheck || true
+
+  performance-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: http://localhost:8787
+          configPath: .lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  deploy:
+    needs: [test, security-audit]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Cloudflare
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
